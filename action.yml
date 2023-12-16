@@ -1,0 +1,28 @@
+name: "vpm-build-repository"
+description: "Creating package list json file for VPM(VRChat Package Manager)"
+author: "Gomorroth"
+inputs:
+  input: 
+    description: "Filename of source json"
+    required: false
+    default: "source.json"
+  output: 
+    description: "Filename of output json"
+    required: false
+    default: "vpm.json"
+  repo-token:
+    description: 'The GitHub token used to manage labels'
+    required: false
+    default: ${{ github.token }}
+runs:
+  using: "docker"
+  image: "Dockerfile.Action"
+  env:
+    DOCKER_IMAGE: ${{ github.repository }}
+    INPUT: ${{ inputs.input }}
+    OUTPUT: ${{ inputs.output }}
+    REPO-TOKEN: ${{ inputs.repo-token }}
+
+branding:
+  icon: 'file-text'
+  color: 'gray-dark'

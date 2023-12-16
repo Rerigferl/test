@@ -1,0 +1,28 @@
+ARG assembly-name
+FROM mcr.microsoft.com/dotnet/sdk:latest as builder
+WORKDIR /app
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        clang \
+        make \
+        cmake \
+        zlib1g-dev \
+        libicu-dev \
+        libssl-dev 
+
+COPY /src/* ./
+
+RUN dotnet publish -r linux-x64 -c Release --ucr --sc -o out \
+    -p:AssemblyName=${assembly-name} \
+    -p:StaticOpenSslLinking=true \
+    -p:StaticICULinking=true \
+    -p:StaticExecutable=true \
+    -p:LinkStandardCPlusPlusLibrary=true
+
+FROM gcr.io/distroless/base-debian12:latest
+WORKDIR /app
+
+COPY --from=builder --chmod=+x /app/out/${assembly-name} .
+
+ENTRYPOINT [ "/app/${assembly-name}" ]
